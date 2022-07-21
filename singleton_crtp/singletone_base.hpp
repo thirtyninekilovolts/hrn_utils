@@ -13,20 +13,23 @@ public:
     SingletonBase& operator=(SingletonBase&&) = delete;
 
     static std::shared_ptr<T> getInstance() {
-        if(m_instance) {
-            m_instance = std::make_shared<T>();
-            return m_instance;
+        if(!m_instance) {
+            m_instance = std::shared_ptr<T>(new T());
         }
 
         return m_instance;
     }
 
     template<typename ...ARGS>
-    static std::shared_ptr<T> getInstance(const ARGS&... args) {
+    static std::shared_ptr<T> getInstance(ARGS&&... args) {
+        if(!m_instance){
+            m_instance = std::shared_ptr<T>( new T(std::forward<ARGS>(args)...));
+        }
         return m_instance;
     }
 protected:
     SingletonBase() = default;
+    ~SingletonBase() = default;
 
 private:
     static inline std::shared_ptr<T> m_instance{nullptr};
